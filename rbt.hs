@@ -1,4 +1,4 @@
-module Rbt where
+module Rbt(color, aggr, value, Rbt.toList, rbt, insert, aggregate, RBData(RBData), NodeColor(Red,Black), RBT, fold) where
 
 import Tree
 import Data.Monoid
@@ -66,7 +66,27 @@ insert x m rbt =
                                 dad''= dad $ setColor Red $ goAnother z  dad'
                                 in fix dad''
                         | otherwise                                              = fix $ goAnother z $ rotate z 
-        in fix inserted    
+        in fix inserted
+
+aggregate::(Ord a, Monoid b)=>RBT a b -> a -> a -> b
+aggregate Leaf _ _ = mempty
+aggregate node@(Node rbt left right) from to 
+        | from > to = aggregate node to from
+        | to < rbtValue rbt = aggregate left from to 
+        | from > rbtValue rbt =  aggregate right from to 
+        | from == (rbtValue rbt) = rbtCalc rbt <> rightAggr right to
+        | otherwise = leftAggr left from <> rbtCalc rbt <> rightAggr right to
+
+leftAggr Leaf _  = mempty
+leftAggr (Node rbt left right ) from 
+        | from > rbtValue rbt  = leftAggr right from
+        | from == rbtValue rbt = rbtCalc rbt <> aggr right
+        | from < rbtValue rbt  = leftAggr left from <>  rbtCalc rbt <> aggr right
+
+rightAggr Leaf _ = mempty
+rightAggr (Node rbt left right) to
+        | to < rbtValue rbt = rightAggr left to
+        | to >= rbtValue rbt = aggr left <> rbtCalc rbt <> rightAggr right to
 
 fold::b->(a->b->b->b)->RBT a c->b
 fold s f Leaf = s

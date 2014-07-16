@@ -24,10 +24,11 @@ main = do
         let num = 1000
         let a::RBT Int (Sum Int)
             a = rbt
-            b = foldr (uncurry insert) a ( [1..num] `zip` map Sum [1..num])
+            b = foldr (uncurry insert) a ( [1,3..num] `zip` map Sum [1,3..num])
         print $ color b
         print $ check b
         print $ value b
         print $ aggr b
         print $ aggr $ leftTree b
         print $ aggr $ rightTree b
+        print $ aggregate b (-10000) 100000
