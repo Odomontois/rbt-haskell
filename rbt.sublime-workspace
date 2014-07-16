@@ -1,0 +1,330 @@
+{
+	"auto_complete":
+	{
+		"selected_items":
+		[
+			[
+				"ro",
+				"rollUp"
+			],
+			[
+				"set",
+				"setValue"
+			],
+			[
+				"mod",
+				"modTree"
+			],
+			[
+				"tre",
+				"treeZ"
+			],
+			[
+				"r",
+				"right"
+			],
+			[
+				"re",
+				"replaced"
+			],
+			[
+				"mo",
+				"modif"
+			],
+			[
+				"dir",
+				"direction"
+			],
+			[
+				"tr",
+				"treeZ"
+			],
+			[
+				"N",
+				"Nothing"
+			],
+			[
+				"a",
+				"anywhere"
+			]
+		]
+	},
+	"buffers":
+	[
+		{
+			"file": "rbt-test.hs",
+			"settings":
+			{
+				"buffer_size": 248,
+				"line_ending": "Windows"
+			}
+		},
+		{
+			"file": "rbt.hs",
+			"settings":
+			{
+				"buffer_size": 102,
+				"line_ending": "Windows"
+			}
+		},
+		{
+			"contents": "module Tree where\n\nimport Prelude hiding (Left,Right)\n\ndata Tree a = Node a (Tree a) (Tree a) | Leaf deriving Show\ndata Direction = Left | Right deriving Show\ndata Zipper a = Zipper Direction (Tree a) Bool (Zipper a) | Top (Tree a) Bool deriving Show\n\nzipper::Tree a -> Zipper a\nzipper tree = Top tree False\n\ntreeZ (Zipper _ tree _ _) = tree\ntreeZ (Top tree _) = tree\n\ngoLeft::Zipper a -> Zipper a\ngoLeft current = case (treeZ current) of  Node _ left _ -> Zipper Left left False current\n                                          Leaf          -> error \"Couldn't go anywhere from leaf\"\n\ngoRight::Zipper a -> Zipper a\ngoRight current = case (treeZ current) of  Node _ _ right -> Zipper Right right False current\n                                           Leaf           -> error \"Couldn't go anywhere from leaf\"\n\nreplace (Node x left right) modified direction = case direction of \n	Left -> Node x modified right\n	Right -> Node x left modified\n\nstepUp::Zipper a -> Zipper a\nstepUp (Top _  _) = error \"Couldn't get higher than top\"\nstepUp (Zipper _ _ False prev) = prev\nstepUp (Zipper direction tree True zipper) = let replaced = replace (treeZ zipper) tree direction in\n	case zipper of Zipper dir _ modif prev -> Zipper dir replaced modif prev\n	               Top    _ modif          -> Top    replaced modif\n\nrollUp::Zipper a -> Tree a\nrollUp (Top tree _ ) = tree\nrollUp z@(Zipper _ _ _ _) = rollUp (stepUp z)\n\nmodTree::(Tree a -> Tree a) -> Zipper a -> Zipper a\nmodTree transform (Top node _ ) =  Top (transform node) True\nmodTree transform (Zipper direction node _ prev) = Zipper direction (transform node) True prev\n\nsetTree tree = modTree (const tree)\nsetValue x = let transform (Node _ l r) = Node x l r in modTree transform\n\nrotate::Zipper a -> Zipper a\nrotate zipper@(Top _ _ ) = zipper\nrotate (Zipper _ Leaf _ _) = error \"Can not rotate Zipper\"\nrotate (Zipper Left (Node c left center) modif zipper) =\n	let (Node p _ right ) = treeZ zipper in\n	let modParent = Node p center right in \n	let modChild = Node c left modParent in \n	setTree modChild zipper\nrotate (Zipper Right (Node c center right) modif zipper) =\n	let (Node p left _) = treeZ zipper in\n	let modParent = Node p left center in \n	let modChild = Node c modParent right in\n	setTree modChild zipper\n\nfromList::[a] -> Tree a\nfromList [] = Leaf\nfromList [x] = Node x Leaf Leaf\nfromList (x:others) = Node x Leaf $ fromList others\n\ntoList::Tree a -> [a]\ntoList Leaf = []\ntoList (Node x t1 t2) = toList t1 ++ x:toList t2\n\ninvert::Tree a -> Tree a\ninvert Leaf = Leaf\ninvert (Node x t1 t2) = Node x (invert t2) (invert t1)\n\n\n\n\n\n",
+			"file": "tree.hs",
+			"file_size": 2773,
+			"file_write_time": 130497652412268870,
+			"settings":
+			{
+				"buffer_size": 2585,
+				"line_ending": "Windows"
+			}
+		}
+	],
+	"build_system": "",
+	"command_palette":
+	{
+		"height": 490.0,
+		"selected_items":
+		[
+			[
+				"pr",
+				"Package Control: Remove Package"
+			],
+			[
+				"pi",
+				"Package Control: Install Package"
+			]
+		],
+		"width": 549.0
+	},
+	"console":
+	{
+		"height": 190.0,
+		"history":
+		[
+			"import urllib.request,os,hashlib; h = '7183a2d3e96f11eeadd761d777e62404' + 'e330c659d4bb41d3bdf022e94cab3cd0'; pf = 'Package Control.sublime-package'; ipp = sublime.installed_packages_path(); urllib.request.install_opener( urllib.request.build_opener( urllib.request.ProxyHandler()) ); by = urllib.request.urlopen( 'http://sublime.wbond.net/' + pf.replace(' ', '%20')).read(); dh = hashlib.sha256(by).hexdigest(); print('Error validating download (got %s instead of %s), please try manual install' % (dh, h)) if dh != h else open(os.path.join( ipp, pf), 'wb' ).write(by)"
+		]
+	},
+	"distraction_free":
+	{
+		"menu_visible": true,
+		"show_minimap": false,
+		"show_open_files": false,
+		"show_tabs": false,
+		"side_bar_visible": false,
+		"status_bar_visible": false
+	},
+	"file_history":
+	[
+	],
+	"find":
+	{
+		"height": 0.0
+	},
+	"find_in_files":
+	{
+		"height": 0.0,
+		"where_history":
+		[
+		]
+	},
+	"find_state":
+	{
+		"case_sensitive": false,
+		"find_history":
+		[
+		],
+		"highlight": true,
+		"in_selection": false,
+		"preserve_case": false,
+		"regex": false,
+		"replace_history":
+		[
+		],
+		"reverse": false,
+		"show_context": true,
+		"use_buffer2": true,
+		"whole_word": false,
+		"wrap": true
+	},
+	"groups":
+	[
+		{
+			"selected": 2,
+			"sheets":
+			[
+				{
+					"buffer": 0,
+					"file": "rbt-test.hs",
+					"semi_transient": false,
+					"settings":
+					{
+						"buffer_size": 248,
+						"regions":
+						{
+						},
+						"selection":
+						[
+							[
+								128,
+								128
+							]
+						],
+						"settings":
+						{
+							"auto_name": "",
+							"syntax": "Packages/Haskell/Haskell.tmLanguage"
+						},
+						"translation.x": 0.0,
+						"translation.y": 0.0,
+						"zoom_level": 1.0
+					},
+					"stack_index": 2,
+					"type": "text"
+				},
+				{
+					"buffer": 1,
+					"file": "rbt.hs",
+					"semi_transient": false,
+					"settings":
+					{
+						"buffer_size": 102,
+						"regions":
+						{
+						},
+						"selection":
+						[
+							[
+								102,
+								102
+							]
+						],
+						"settings":
+						{
+							"auto_name": "",
+							"syntax": "Packages/Haskell/Haskell.tmLanguage"
+						},
+						"translation.x": 0.0,
+						"translation.y": 0.0,
+						"zoom_level": 1.0
+					},
+					"stack_index": 1,
+					"type": "text"
+				},
+				{
+					"buffer": 2,
+					"file": "tree.hs",
+					"semi_transient": false,
+					"settings":
+					{
+						"buffer_size": 2585,
+						"regions":
+						{
+						},
+						"selection":
+						[
+							[
+								1408,
+								1408
+							]
+						],
+						"settings":
+						{
+							"auto_name": "",
+							"syntax": "Packages/Haskell/Haskell.tmLanguage"
+						},
+						"translation.x": 0.0,
+						"translation.y": 60.0,
+						"zoom_level": 1.0
+					},
+					"stack_index": 0,
+					"type": "text"
+				}
+			]
+		}
+	],
+	"incremental_find":
+	{
+		"height": 0.0
+	},
+	"input":
+	{
+		"height": 38.0
+	},
+	"layout":
+	{
+		"cells":
+		[
+			[
+				0,
+				0,
+				1,
+				1
+			]
+		],
+		"cols":
+		[
+			0.0,
+			1.0
+		],
+		"rows":
+		[
+			0.0,
+			1.0
+		]
+	},
+	"menu_visible": true,
+	"output.exec":
+	{
+		"height": 374.0
+	},
+	"output.find_results":
+	{
+		"height": 0.0
+	},
+	"output.haskell_sublime_load":
+	{
+		"height": 130.0
+	},
+	"project": "rbt.sublime-project",
+	"replace":
+	{
+		"height": 0.0
+	},
+	"save_all_on_build": true,
+	"select_file":
+	{
+		"height": 0.0,
+		"selected_items":
+		[
+		],
+		"width": 0.0
+	},
+	"select_project":
+	{
+		"height": 0.0,
+		"selected_items":
+		[
+		],
+		"width": 0.0
+	},
+	"select_symbol":
+	{
+		"height": 0.0,
+		"selected_items":
+		[
+		],
+		"width": 0.0
+	},
+	"settings":
+	{
+	},
+	"show_minimap": true,
+	"show_open_files": false,
+	"show_tabs": true,
+	"side_bar_visible": true,
+	"side_bar_width": 188.0,
+	"status_bar_visible": true,
+	"template_settings":
+	{
+	}
+}
