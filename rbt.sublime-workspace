@@ -4,94 +4,211 @@
 		"selected_items":
 		[
 			[
+				"NO",
+				"NodeColor"
+			],
+			[
+				"ri",
+				"right"
+			],
+			[
+				"rb",
+				"rbtValue"
+			],
+			[
+				"rbt",
+				"rbtValue"
+			],
+			[
+				"rig",
+				"rightAggr"
+			],
+			[
+				"left",
+				"leftAggr"
+			],
+			[
+				"ag",
+				"aggregate"
+			],
+			[
+				"r",
+				"rbt"
+			],
+			[
+				"a",
+				"aggregate"
+			],
+			[
+				"N",
+				"Node"
+			],
+			[
+				"B",
+				"branchAggr"
+			],
+			[
+				"bra",
+				"branchAggr"
+			],
+			[
+				"tr",
+				"treeVal"
+			],
+			[
+				"mo",
+				"modified"
+			],
+			[
+				"t",
+				"transform"
+			],
+			[
+				"cons",
+				"constTF"
+			],
+			[
+				"f",
+				"fold"
+			],
+			[
+				"L",
+				"Leaf"
+			],
+			[
+				"le",
+				"left"
+			],
+			[
+				"d",
+				"deep"
+			],
+			[
+				"l",
+				"left"
+			],
+			[
+				"go",
+				"goAnother"
+			],
+			[
 				"ro",
-				"rollUp"
+				"rotate"
+			],
+			[
+				"is",
+				"isTop"
+			],
+			[
+				"No",
+				"NodeColor"
 			],
 			[
 				"set",
-				"setValue"
+				"setColor"
+			],
+			[
+				"RB",
+				"RBData"
+			],
+			[
+				"ins",
+				"insert"
+			],
+			[
+				"s",
+				"show"
+			],
+			[
+				"_",
+				"_lines"
 			],
 			[
 				"mod",
-				"modTree"
+				"modified"
+			],
+			[
+				"R",
+				"RBTree"
+			],
+			[
+				"c",
+				"color"
+			],
+			[
+				"Rb",
+				"RBData"
 			],
 			[
 				"tre",
 				"treeZ"
 			],
 			[
-				"r",
-				"right"
-			],
-			[
 				"re",
 				"replaced"
 			],
 			[
-				"mo",
-				"modif"
-			],
-			[
 				"dir",
 				"direction"
-			],
-			[
-				"tr",
-				"treeZ"
-			],
-			[
-				"N",
-				"Nothing"
-			],
-			[
-				"a",
-				"anywhere"
 			]
 		]
 	},
 	"buffers":
 	[
 		{
-			"file": "rbt-test.hs",
-			"settings":
-			{
-				"buffer_size": 248,
-				"line_ending": "Windows"
-			}
-		},
-		{
 			"file": "rbt.hs",
 			"settings":
 			{
-				"buffer_size": 102,
+				"buffer_size": 3574,
 				"line_ending": "Windows"
 			}
 		},
 		{
-			"contents": "module Tree where\n\nimport Prelude hiding (Left,Right)\n\ndata Tree a = Node a (Tree a) (Tree a) | Leaf deriving Show\ndata Direction = Left | Right deriving Show\ndata Zipper a = Zipper Direction (Tree a) Bool (Zipper a) | Top (Tree a) Bool deriving Show\n\nzipper::Tree a -> Zipper a\nzipper tree = Top tree False\n\ntreeZ (Zipper _ tree _ _) = tree\ntreeZ (Top tree _) = tree\n\ngoLeft::Zipper a -> Zipper a\ngoLeft current = case (treeZ current) of  Node _ left _ -> Zipper Left left False current\n                                          Leaf          -> error \"Couldn't go anywhere from leaf\"\n\ngoRight::Zipper a -> Zipper a\ngoRight current = case (treeZ current) of  Node _ _ right -> Zipper Right right False current\n                                           Leaf           -> error \"Couldn't go anywhere from leaf\"\n\nreplace (Node x left right) modified direction = case direction of \n	Left -> Node x modified right\n	Right -> Node x left modified\n\nstepUp::Zipper a -> Zipper a\nstepUp (Top _  _) = error \"Couldn't get higher than top\"\nstepUp (Zipper _ _ False prev) = prev\nstepUp (Zipper direction tree True zipper) = let replaced = replace (treeZ zipper) tree direction in\n	case zipper of Zipper dir _ modif prev -> Zipper dir replaced modif prev\n	               Top    _ modif          -> Top    replaced modif\n\nrollUp::Zipper a -> Tree a\nrollUp (Top tree _ ) = tree\nrollUp z@(Zipper _ _ _ _) = rollUp (stepUp z)\n\nmodTree::(Tree a -> Tree a) -> Zipper a -> Zipper a\nmodTree transform (Top node _ ) =  Top (transform node) True\nmodTree transform (Zipper direction node _ prev) = Zipper direction (transform node) True prev\n\nsetTree tree = modTree (const tree)\nsetValue x = let transform (Node _ l r) = Node x l r in modTree transform\n\nrotate::Zipper a -> Zipper a\nrotate zipper@(Top _ _ ) = zipper\nrotate (Zipper _ Leaf _ _) = error \"Can not rotate Zipper\"\nrotate (Zipper Left (Node c left center) modif zipper) =\n	let (Node p _ right ) = treeZ zipper in\n	let modParent = Node p center right in \n	let modChild = Node c left modParent in \n	setTree modChild zipper\nrotate (Zipper Right (Node c center right) modif zipper) =\n	let (Node p left _) = treeZ zipper in\n	let modParent = Node p left center in \n	let modChild = Node c modParent right in\n	setTree modChild zipper\n\nfromList::[a] -> Tree a\nfromList [] = Leaf\nfromList [x] = Node x Leaf Leaf\nfromList (x:others) = Node x Leaf $ fromList others\n\ntoList::Tree a -> [a]\ntoList Leaf = []\ntoList (Node x t1 t2) = toList t1 ++ x:toList t2\n\ninvert::Tree a -> Tree a\ninvert Leaf = Leaf\ninvert (Node x t1 t2) = Node x (invert t2) (invert t1)\n\n\n\n\n\n",
-			"file": "tree.hs",
-			"file_size": 2773,
-			"file_write_time": 130497652412268870,
+			"file": "rbt-test.hs",
 			"settings":
 			{
-				"buffer_size": 2585,
+				"buffer_size": 1028,
 				"line_ending": "Windows"
+			}
+		},
+		{
+			"file": "tree.hs",
+			"settings":
+			{
+				"buffer_size": 3513,
+				"line_ending": "Windows"
+			}
+		},
+		{
+			"file": "/C/Users/Олег/AppData/Roaming/Sublime Text 3/Packages/User/Preferences.sublime-settings",
+			"settings":
+			{
+				"buffer_size": 94,
+				"line_ending": "Unix"
 			}
 		}
 	],
 	"build_system": "",
 	"command_palette":
 	{
-		"height": 490.0,
+		"height": 241.0,
 		"selected_items":
 		[
 			[
-				"pr",
-				"Package Control: Remove Package"
+				"lipa",
+				"Package Control: List Packages"
+			],
+			[
+				"packi",
+				"Package Control: Install Package"
 			],
 			[
 				"pi",
 				"Package Control: Install Package"
+			],
+			[
+				"pr",
+				"Package Control: Remove Package"
 			]
 		],
 		"width": 549.0
@@ -115,10 +232,15 @@
 	},
 	"file_history":
 	[
+		"/D/prog/projects/pure/haskell/rbt/.gitignore",
+		"/D/prog/projects/pure/haskell/rbt/rbt.sublime-project",
+		"/D/prog/projects/pure/haskell/rbt/Rbt.hi",
+		"/C/Users/Олег/AppData/Roaming/Sublime Text 3/Packages/Default/Preferences.sublime-settings",
+		"/C/Users/Олег/AppData/Roaming/Sublime Text 3/Packages/User/Preferences.sublime-settings"
 	],
 	"find":
 	{
-		"height": 0.0
+		"height": 28.0
 	},
 	"find_in_files":
 	{
@@ -132,6 +254,9 @@
 		"case_sensitive": false,
 		"find_history":
 		[
+			"rbtCalc",
+			"rbtValue",
+			"nodeVal"
 		],
 		"highlight": true,
 		"in_selection": false,
@@ -149,65 +274,68 @@
 	"groups":
 	[
 		{
-			"selected": 2,
+			"selected": 0,
 			"sheets":
 			[
 				{
 					"buffer": 0,
-					"file": "rbt-test.hs",
-					"semi_transient": false,
-					"settings":
-					{
-						"buffer_size": 248,
-						"regions":
-						{
-						},
-						"selection":
-						[
-							[
-								128,
-								128
-							]
-						],
-						"settings":
-						{
-							"auto_name": "",
-							"syntax": "Packages/Haskell/Haskell.tmLanguage"
-						},
-						"translation.x": 0.0,
-						"translation.y": 0.0,
-						"zoom_level": 1.0
-					},
-					"stack_index": 2,
-					"type": "text"
-				},
-				{
-					"buffer": 1,
 					"file": "rbt.hs",
 					"semi_transient": false,
 					"settings":
 					{
-						"buffer_size": 102,
+						"buffer_size": 3574,
 						"regions":
 						{
 						},
 						"selection":
 						[
 							[
-								102,
-								102
+								1505,
+								1505
 							]
 						],
 						"settings":
 						{
 							"auto_name": "",
-							"syntax": "Packages/Haskell/Haskell.tmLanguage"
+							"syntax": "Packages/Haskell/Haskell.tmLanguage",
+							"tab_size": 4,
+							"translate_tabs_to_spaces": true
 						},
 						"translation.x": 0.0,
-						"translation.y": 0.0,
+						"translation.y": 560.0,
 						"zoom_level": 1.0
 					},
-					"stack_index": 1,
+					"stack_index": 0,
+					"type": "text"
+				},
+				{
+					"buffer": 1,
+					"file": "rbt-test.hs",
+					"semi_transient": false,
+					"settings":
+					{
+						"buffer_size": 1028,
+						"regions":
+						{
+						},
+						"selection":
+						[
+							[
+								267,
+								267
+							]
+						],
+						"settings":
+						{
+							"auto_name": "",
+							"syntax": "Packages/Haskell/Haskell.tmLanguage",
+							"translate_tabs_to_spaces": true
+						},
+						"translation.x": 0.0,
+						"translation.y": 60.0,
+						"zoom_level": 1.0
+					},
+					"stack_index": 3,
 					"type": "text"
 				},
 				{
@@ -216,27 +344,56 @@
 					"semi_transient": false,
 					"settings":
 					{
-						"buffer_size": 2585,
+						"buffer_size": 3513,
 						"regions":
 						{
 						},
 						"selection":
 						[
 							[
-								1408,
-								1408
+								2971,
+								2971
 							]
 						],
 						"settings":
 						{
 							"auto_name": "",
-							"syntax": "Packages/Haskell/Haskell.tmLanguage"
+							"syntax": "Packages/Haskell/Haskell.tmLanguage",
+							"translate_tabs_to_spaces": true
 						},
-						"translation.x": 0.0,
-						"translation.y": 60.0,
+						"translation.x": -0.0,
+						"translation.y": 0.0,
 						"zoom_level": 1.0
 					},
-					"stack_index": 0,
+					"stack_index": 1,
+					"type": "text"
+				},
+				{
+					"buffer": 3,
+					"file": "/C/Users/Олег/AppData/Roaming/Sublime Text 3/Packages/User/Preferences.sublime-settings",
+					"semi_transient": false,
+					"settings":
+					{
+						"buffer_size": 94,
+						"regions":
+						{
+						},
+						"selection":
+						[
+							[
+								56,
+								56
+							]
+						],
+						"settings":
+						{
+							"syntax": "Packages/JavaScript/JSON.tmLanguage"
+						},
+						"translation.x": 0.0,
+						"translation.y": 0.0,
+						"zoom_level": 1.0
+					},
+					"stack_index": 2,
 					"type": "text"
 				}
 			]
@@ -244,7 +401,7 @@
 	],
 	"incremental_find":
 	{
-		"height": 0.0
+		"height": 28.0
 	},
 	"input":
 	{
@@ -275,7 +432,7 @@
 	"menu_visible": true,
 	"output.exec":
 	{
-		"height": 374.0
+		"height": 379.0
 	},
 	"output.find_results":
 	{
@@ -288,7 +445,7 @@
 	"project": "rbt.sublime-project",
 	"replace":
 	{
-		"height": 0.0
+		"height": 52.0
 	},
 	"save_all_on_build": true,
 	"select_file":

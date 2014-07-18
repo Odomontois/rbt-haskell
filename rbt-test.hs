@@ -20,13 +20,12 @@ deep::RBT a b-> Int
 deep t = Rbt.fold (0::Int) (\ _ l r -> 1 + (l `max` r)) t
 
 main = do
-        --num <- read <$> getLine :: IO Int
-        let num = 1000
+        --num <- read <$> getLine::IO Int
+        let num = 1234
         let a::RBT Int (Sum Int)
             a = rbt
             b = foldr (uncurry insert) a ( [1,3..num] `zip` map Sum [1,3..num])
         print $ color b
-        print $ check b
         print $ value b
         print $ aggr b
         print $ aggr $ leftTree b
